@@ -151,6 +151,14 @@ Protect both routes by checking a shared secret header Vercel sends (`Authorizat
 11. **Polish**: Bulgarian copy pass, mobile responsiveness for the calendar grid, loading/error states, basic rate-limiting on register/login.
 12. **Deploy**: Vercel project, Neon integration, env vars, Vercel Cron, smoke test end-to-end.
 
+13. **About page** (`app/about/page.tsx`): static public page that explains how the platform works — no auth required. Content should cover:
+    - What the platform is: an online booking system for the football pitches of Балона — Враца.
+    - **Viewing bookings**: any visitor (no account needed) can open the calendar on the home page and see which slots are already taken across both fields.
+    - **Making a booking**: a free account is required. The user registers with email, password, and phone number, and optionally a team name. After logging in they click any free slot, fill in optional team details, and submit — the booking is then either confirmed immediately (for trusted users) or sent for review.
+    - **Cancellations and changes**: users can view and manage their own bookings from their account page (`/account`).
+    - Keep the tone friendly and short (≤ 200 words). Write the copy in Bulgarian. Add a link to register and a link back to the calendar.
+    - Add an entry in the site's main navigation: "За нас" pointing to `/about`.
+
 ---
 
 ## Open question before building
