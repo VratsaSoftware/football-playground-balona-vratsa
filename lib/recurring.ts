@@ -1,6 +1,7 @@
 import { addDays, addHours, format } from "date-fns";
 import { fromZonedTime, toZonedTime } from "date-fns-tz";
 import { prisma } from "./prisma";
+import { sendRecurrenceConflictEmail } from "./email";
 
 const TZ = "Europe/Sofia";
 
@@ -68,6 +69,7 @@ function getOccurrenceDates(
 type SeriesShape = {
   id: string;
   fieldId: string;
+  fieldName?: string; // optional — used in conflict emails
   dayOfWeek: number;
   startHour: number;
   startDate: Date;
@@ -131,6 +133,13 @@ async function generateOccurrencesForSeries(
           `[recurring] Conflict on ${dateStr} h${series.startHour} for series ${series.id}`
         );
         skipped++;
+        // Notify admin — best-effort, don't let it block generation
+        sendRecurrenceConflictEmail({
+          seriesId: series.id,
+          fieldName: series.fieldName ?? series.fieldId,
+          dateStr,
+          hour: series.startHour,
+        }).catch((e) => console.error("[recurring] conflict email error:", e));
       }
       continue;
     }
@@ -229,7 +238,7 @@ export async function createRecurringSeries(input: {
   });
 
   const { created, skipped } = await generateOccurrencesForSeries(
-    series,
+    { ...series, fieldName: series.field.name },
     horizonStr,
     todayStr
   );
@@ -317,6 +326,7 @@ export async function generateUpcomingOccurrences(): Promise<{
 
   const activeSeries = await prisma.recurringBooking.findMany({
     where: { isActive: true },
+    include: { field: { select: { name: true } } },
   });
 
   let totalCreated = 0;
@@ -324,7 +334,7 @@ export async function generateUpcomingOccurrences(): Promise<{
 
   for (const series of activeSeries) {
     const { created, skipped } = await generateOccurrencesForSeries(
-      series,
+      { ...series, fieldName: series.field.name },
       horizonStr,
       todayStr
     );

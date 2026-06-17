@@ -1,6 +1,13 @@
 import { addDays, addHours } from "date-fns";
 import { fromZonedTime } from "date-fns-tz";
 import { prisma } from "./prisma";
+import {
+  sendBookingPendingEmail,
+  sendBookingConfirmedEmail,
+  sendBookingApprovedEmail,
+  sendBookingRejectedEmail,
+  sendBookingCancelledEmail,
+} from "./email";
 
 const TZ = "Europe/Sofia";
 
@@ -90,6 +97,17 @@ export async function createBooking(input: CreateBookingInput) {
     },
   });
 
+  // Send email — fire-and-forget (email failure must not fail the booking)
+  try {
+    if (status === "PENDING") {
+      await sendBookingPendingEmail(booking);
+    } else if (status === "CONFIRMED" && booking.user?.email) {
+      await sendBookingConfirmedEmail(booking);
+    }
+  } catch (emailErr) {
+    console.error("[bookings:createBooking] email error:", emailErr);
+  }
+
   return { booking, status, source };
 }
 
@@ -103,7 +121,7 @@ export async function approveBooking(bookingId: string, adminId: string) {
     throw new BookingError("Може да се одобряват само резервации в изчакване.");
   }
 
-  return prisma.booking.update({
+  const updated = await prisma.booking.update({
     where: { id: bookingId },
     data: { status: "CONFIRMED", reviewedByAdminId: adminId, reviewedAt: new Date() },
     include: {
@@ -111,6 +129,14 @@ export async function approveBooking(bookingId: string, adminId: string) {
       user: { select: { email: true, phone: true } },
     },
   });
+
+  try {
+    await sendBookingApprovedEmail(updated);
+  } catch (emailErr) {
+    console.error("[bookings:approveBooking] email error:", emailErr);
+  }
+
+  return updated;
 }
 
 export async function rejectBooking(
@@ -127,7 +153,7 @@ export async function rejectBooking(
     throw new BookingError("Може да се отхвърлят само резервации в изчакване.");
   }
 
-  return prisma.booking.update({
+  const updated = await prisma.booking.update({
     where: { id: bookingId },
     data: {
       status: "REJECTED",
@@ -140,6 +166,14 @@ export async function rejectBooking(
       user: { select: { email: true, phone: true } },
     },
   });
+
+  try {
+    await sendBookingRejectedEmail({ ...updated, rejectionReason: reason });
+  } catch (emailErr) {
+    console.error("[bookings:rejectBooking] email error:", emailErr);
+  }
+
+  return updated;
 }
 
 export async function cancelBooking(bookingId: string, adminId: string) {
@@ -152,7 +186,7 @@ export async function cancelBooking(bookingId: string, adminId: string) {
     throw new BookingError("Може да се отменят само активни резервации.");
   }
 
-  return prisma.booking.update({
+  const updated = await prisma.booking.update({
     where: { id: bookingId },
     data: {
       status: "CANCELLED",
@@ -164,4 +198,12 @@ export async function cancelBooking(bookingId: string, adminId: string) {
       user: { select: { email: true, phone: true } },
     },
   });
+
+  try {
+    await sendBookingCancelledEmail(updated);
+  } catch (emailErr) {
+    console.error("[bookings:cancelBooking] email error:", emailErr);
+  }
+
+  return updated;
 }
