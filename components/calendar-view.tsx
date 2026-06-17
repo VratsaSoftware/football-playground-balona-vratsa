@@ -198,9 +198,9 @@ function CalendarRow({ dates, dataMap, showAllHours, isLoggedIn, onBookSlot }: C
 
   // Helper: renders one date's cells prefixed with a spacer div when it's not
   // the first date in the row.
-  function dayCells(date: string, di: number, makeCell: (date: string, fi: number) => React.ReactNode) {
+  function dayCells(date: string, di: number, keyPrefix: string, makeCell: (date: string, fi: number) => React.ReactNode) {
     return [
-      ...(di > 0 ? [<div key={`sep-${date}`} />] : []),
+      ...(di > 0 ? [<div key={`sep-${keyPrefix}-${date}`} />] : []),
       ...Array.from({ length: numFields }, (_, fi) => makeCell(date, fi)),
     ];
   }
@@ -236,7 +236,7 @@ function CalendarRow({ dates, dataMap, showAllHours, isLoggedIn, onBookSlot }: C
         {/* ── Field sub-header row ── */}
         <div />
         {dates.flatMap((date, di) =>
-          dayCells(date, di, (_, fi) => {
+          dayCells(date, di, "fh", (_, fi) => {
             const field = fields[fi];
             return (
               <div
@@ -264,7 +264,7 @@ function CalendarRow({ dates, dataMap, showAllHours, isLoggedIn, onBookSlot }: C
           ...dates.flatMap((date, di) => {
             const dayData = dataMap[date];
             if (!dayData) {
-              return dayCells(date, di, (_, fi) => (
+              return dayCells(date, di, `sk-${hour}`, (_, fi) => (
                 <div
                   key={`sk-${date}-${fi}-${hour}`}
                   className="h-8 rounded bg-gray-200 animate-pulse"
