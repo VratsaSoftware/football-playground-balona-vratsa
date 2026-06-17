@@ -28,10 +28,10 @@ async function main() {
   // Create 2 fields
   const field1 = await prisma.field.upsert({
     where: { id: "field-1" },
-    update: {},
+    update: { name: "Игрище вътре" },
     create: {
       id: "field-1",
-      name: "Игрище 1",
+      name: "Игрище вътре",
       sortOrder: 1,
       isActive: true,
     },
@@ -39,10 +39,10 @@ async function main() {
 
   const field2 = await prisma.field.upsert({
     where: { id: "field-2" },
-    update: {},
+    update: { name: "Игрище вън" },
     create: {
       id: "field-2",
-      name: "Игрище 2",
+      name: "Игрище вън",
       sortOrder: 2,
       isActive: true,
     },

@@ -18,6 +18,12 @@ export default async function Navbar() {
         {/* Nav links */}
         <div className="flex items-center gap-4 text-sm">
           <Link
+            href="/"
+            className="text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            Календар
+          </Link>
+          <Link
             href="/about"
             className="text-gray-600 hover:text-gray-900 transition-colors"
           >
