@@ -24,10 +24,10 @@ export default async function Navbar() {
             Календар
           </Link>
           <Link
-            href="/about"
+            href="/how-it-works"
             className="text-gray-600 hover:text-gray-900 transition-colors"
           >
-            Как работи
+            Как работи?
           </Link>
           {user ? (
             <>

@@ -2,14 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Как работи — Балона Враца",
+  title: "Как работи? — Балона Враца",
   description: "Как работи системата за онлайн резервации на футболните игрища на Балона Враца.",
 };
 
 export default function AboutPage() {
   return (
     <div className="max-w-2xl mx-auto px-4 py-10">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Как работи</h1>
+      <h1 className="text-2xl font-bold text-gray-900 mb-6">Как работи?</h1>
 
       <div className="space-y-5 text-gray-700 leading-relaxed">
         <p>
@@ -49,6 +49,18 @@ export default function AboutPage() {
           <p className="mt-2">
             Имайте предвид, че нов акаунт трябва да бъде одобрен от
             администратор, преди да може да прави резервации.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-lg font-semibold text-gray-900 mb-2">
+            Повтарящи се резервации
+          </h2>
+          <p>
+            Ако играете редовно — например всяка сряда в 19:00 — можете да
+            заявите повтаряща се резервация. Посочвате ден от седмицата, час и
+            игрище, и системата автоматично запазва часа за вас за всяка
+            следваща седмица в рамките на разрешения хоризонт за резервации.
           </p>
         </section>
 
